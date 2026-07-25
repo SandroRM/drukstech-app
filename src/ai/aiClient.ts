@@ -136,7 +136,7 @@ ERRORE RUNTIME — variabile non dichiarata o fuori scope:
 `
     : '';
 
-  return `Devi rigenerare da zero un modulo AppFromAI valido per questa richiesta:
+  return `Devi rigenerare da zero un modulo drukstech valido per questa richiesta:
 ${userPrompt.trim()}
 
 La risposta precedente non era valida:

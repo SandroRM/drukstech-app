@@ -179,7 +179,7 @@ const it: Strings = {
 
   permTitle: 'Permessi richiesti',
   permBody: (perms) => `Questo modulo richiede accesso a: ${perms}.`,
-  permNotice: 'L\'accesso avviene tramite le API controllate di AppFromAI. Nessun permesso diretto al sistema senza il tuo consenso.',
+  permNotice: 'L\'accesso avviene tramite le API controllate di drukstech. Nessun permesso diretto al sistema senza il tuo consenso.',
   permRequesting: 'Richiesta permessi al sistema…',
   permAllow: 'Consenti e apri',
   permDeny: 'Nega accesso',
@@ -305,7 +305,7 @@ const en: Strings = {
 
   permTitle: 'Permissions required',
   permBody: (perms) => `This module requires access to: ${perms}.`,
-  permNotice: 'Access is handled through the controlled APIs of AppFromAI. No direct system permission without your consent.',
+  permNotice: 'Access is handled through the controlled APIs of drukstech. No direct system permission without your consent.',
   permRequesting: 'Requesting system permissions…',
   permAllow: 'Allow and open',
   permDeny: 'Deny access',
@@ -431,7 +431,7 @@ const es: Strings = {
 
   permTitle: 'Permisos requeridos',
   permBody: (perms) => `Este módulo requiere acceso a: ${perms}.`,
-  permNotice: 'El acceso se gestiona a través de las APIs controladas de AppFromAI. Ningún permiso directo al sistema sin tu consentimiento.',
+  permNotice: 'El acceso se gestiona a través de las APIs controladas de drukstech. Ningún permiso directo al sistema sin tu consentimiento.',
   permRequesting: 'Solicitando permisos al sistema…',
   permAllow: 'Permitir y abrir',
   permDeny: 'Denegar acceso',
@@ -557,7 +557,7 @@ const fr: Strings = {
 
   permTitle: 'Permissions requises',
   permBody: (perms) => `Ce module nécessite l'accès à : ${perms}.`,
-  permNotice: 'L\'accès se fait via les API contrôlées d\'AppFromAI. Aucune permission système directe sans ton consentement.',
+  permNotice: 'L\'accès se fait via les API contrôlées d\'drukstech. Aucune permission système directe sans ton consentement.',
   permRequesting: 'Demande des permissions système…',
   permAllow: 'Autoriser et ouvrir',
   permDeny: 'Refuser l\'accès',
@@ -683,7 +683,7 @@ const de: Strings = {
 
   permTitle: 'Berechtigungen erforderlich',
   permBody: (perms) => `Dieses Modul benötigt Zugriff auf: ${perms}.`,
-  permNotice: 'Der Zugriff erfolgt über die kontrollierten APIs von AppFromAI. Keine direkte Systemberechtigung ohne deine Zustimmung.',
+  permNotice: 'Der Zugriff erfolgt über die kontrollierten APIs von drukstech. Keine direkte Systemberechtigung ohne deine Zustimmung.',
   permRequesting: 'Systemberechtigungen werden angefordert…',
   permAllow: 'Erlauben und öffnen',
   permDeny: 'Zugriff verweigern',

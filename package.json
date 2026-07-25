@@ -1,5 +1,5 @@
 {
-  "name": "appfromai",
+  "name": "drukstech",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
@@ -11,6 +11,9 @@
     "lint": "npm run typecheck && node scripts/lint-no-debug.js"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
     "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@shopify/react-native-skia": "2.2.12",

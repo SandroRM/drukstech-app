@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "AppFromAI",
-    "slug": "AppFromAI",
+    "name": "drukstech",
+    "slug": "drukstech",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "appfromai",
+    "scheme": "drukstech",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -16,10 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "AppFromAI uses the microphone only for modules that record audio.",
-        "NSCameraUsageDescription": "AppFromAI uses the camera only for modules that take photos, scan QR codes, or control the torch.",
-        "NSLocationWhenInUseUsageDescription": "AppFromAI uses location only for modules that require GPS.",
-        "NSMotionUsageDescription": "AppFromAI uses motion sensors only for modules that require them.",
+        "NSMicrophoneUsageDescription": "drukstech uses the microphone only for modules that record audio.",
+        "NSCameraUsageDescription": "drukstech uses the camera only for modules that take photos, scan QR codes, or control the torch.",
+        "NSLocationWhenInUseUsageDescription": "drukstech uses location only for modules that require GPS.",
+        "NSMotionUsageDescription": "drukstech uses motion sensors only for modules that require them.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         },
@@ -29,7 +29,7 @@
           "sms"
         ]
       },
-      "bundleIdentifier": "com.afi.appfromai"
+      "bundleIdentifier": "app.drukstech.mobile"
     },
     "android": {
       "usesCleartextTraffic": true,
@@ -49,7 +49,7 @@
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.afi.appfromai"
+      "package": "app.drukstech.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -59,14 +59,14 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow AppFromAI to use the camera for photos, QR codes and torch in enabled modules.",
-          "microphonePermission": "Allow AppFromAI to use the microphone if a module requires it."
+          "cameraPermission": "Allow drukstech to use the camera for photos, QR codes and torch in enabled modules.",
+          "microphonePermission": "Allow drukstech to use the microphone if a module requires it."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow AppFromAI to use location only in enabled modules."
+          "locationWhenInUsePermission": "Allow drukstech to use location only in enabled modules."
         }
       ],
       [
@@ -80,15 +80,15 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Allow AppFromAI to record audio through enabled modules."
+          "microphonePermission": "Allow drukstech to record audio through enabled modules."
         }
       ],
       "expo-asset",
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Allow AppFromAI to open the camera for photo modules.",
-          "photosPermission": "Allow AppFromAI to use photos selected by enabled modules.",
+          "cameraPermission": "Allow drukstech to open the camera for photo modules.",
+          "photosPermission": "Allow drukstech to use photos selected by enabled modules.",
           "microphonePermission": false
         }
       ]

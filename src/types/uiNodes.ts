@@ -21,7 +21,7 @@ export type UiLayoutProps = {
   textAlign?: 'left' | 'center' | 'right';
 };
 
-/** Palette colori del modulo — tutti i token sono opzionali (il default è il tema AppFromAI). */
+/** Palette colori del modulo — tutti i token sono opzionali (il default è il tema drukstech). */
 export type UiTheme = {
   bg?: string;
   surface?: string;

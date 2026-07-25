@@ -154,7 +154,7 @@ export default function GeneraScreen() {
           <View style={s.topBar}>
             <View style={s.topBarLeft}>
               <Animated.View style={[s.orb, { opacity: loading ? pulseAnim : 1 }]} />
-              <Text style={s.brand}>AppFromAI</Text>
+              <Text style={s.brand}>drukstech</Text>
             </View>
             <View style={s.modelPill}>
               <View style={s.modelDot} />

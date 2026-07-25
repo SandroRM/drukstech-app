@@ -149,7 +149,7 @@ export function GeneratingModal({
         <View style={ls.content}>
           <View style={ls.logoRow}>
             <OrbLoader />
-            <Text style={ls.logoText}>AppFromAI</Text>
+            <Text style={ls.logoText}>drukstech</Text>
           </View>
 
           <Text style={ls.headline}>

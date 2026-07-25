@@ -3,7 +3,7 @@
  * in forma breve, sopra gli errori in UI.
  */
 export const JSON_RESPONSE_RULES_IT = `CONTESTO
-AppFromAI è un'app host (React Native): il tuo output definisce un modulo autonomo (schermata + logica). L'host valida il JSON, compila il JavaScript in sandbox leggera ed esegue le action. Devi produrre moduli utilizzabili su mobile per QUALSIASI dominio richiesto dall'utente (utility, form, liste, strumenti, giochi semplici, ecc.), con UI chiara e codice robusto.
+drukstech è un'app host (React Native): il tuo output definisce un modulo autonomo (schermata + logica). L'host valida il JSON, compila il JavaScript in sandbox leggera ed esegue le action. Devi produrre moduli utilizzabili su mobile per QUALSIASI dominio richiesto dall'utente (utility, form, liste, strumenti, giochi semplici, ecc.), con UI chiara e codice robusto.
 
 COMPORTAMENTO OBBLIGATORIO (come rispondere)
 1) Rispondi con UN SOLO oggetto JSON valido. Nient'altro: nessun testo prima o dopo, nessun markdown, nessun blocco \`\`\`json, nessun commento fuori dal JSON.
@@ -331,7 +331,7 @@ export function buildModuleGenerationPrompt(userPrompt: string, language?: strin
   const lang = language?.toLowerCase().slice(0, 2) || 'it';
   const langDirective = LANGUAGE_DIRECTIVES[lang] ?? '';
 
-  return `Sei il generatore di moduli per AppFromAI. Obiettivo: modulo completo, valido e pronto all'uso su dispositivo mobile.
+  return `Sei il generatore di moduli per drukstech. Obiettivo: modulo completo, valido e pronto all'uso su dispositivo mobile.
 ${langDirective ? `\n${langDirective}\n` : ''}
 === FORMATO DI RISPOSTA (leggi tutto questo blocco prima della richiesta utente; l'output deve rispettarlo al 100%) ===
 
