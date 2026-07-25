@@ -46,6 +46,15 @@ export default function RootLayout() {
               headerShadowVisible: false,
             }}
           />
+          <Stack.Screen
+            name="rag-manager"
+            options={{
+              title: 'Gerenciar RAG',
+              headerStyle: { backgroundColor: '#0b1120' },
+              headerTintColor: '#e8edf5',
+              headerShadowVisible: false,
+            }}
+          />
         </Stack>
         <CameraCaptureModalHost />
         <QrScanModalHost />

@@ -13,6 +13,10 @@ export type AppSettings = {
   claudeBaseUrl: string;
   claudeApiKey: string;
   claudeModel: string;
+  monkeyCodeUrl: string;
+  licenseApiUrl: string;
+  validationApiUrl: string;
+  activeLocalModel: string;
   /** '' = auto-detect from system locale */
   language: string;
 };
@@ -28,6 +32,10 @@ export function defaultSettings(): AppSettings {
     claudeBaseUrl: 'https://api.anthropic.com/v1',
     claudeApiKey: '',
     claudeModel: 'claude-sonnet-4-20250514',
+    monkeyCodeUrl: '',
+    licenseApiUrl: '',
+    validationApiUrl: '',
+    activeLocalModel: '',
     language: '',
   };
 }

@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,7 +15,6 @@ import { useRouter } from 'expo-router';
 import { useSettings } from '../../src/settings/SettingsContext';
 import { useI18n } from '../../src/i18n/useI18n';
 import { LANGUAGES, type Language } from '../../src/i18n/translations';
-import { useDeviceLayout } from '../../src/utils/deviceLayout';
 
 const C = {
   bg: '#0b1120',
@@ -28,11 +28,13 @@ const C = {
   overlay: 'rgba(0,0,0,0.7)',
 };
 
+const AVAILABLE_MODELS = ['Gemma 2B', 'Gemma 4B'];
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <View style={s.section}>
-      <Text style={s.sectionTitle}>{title.toUpperCase()}</Text>
-      <View style={s.sectionBox}>{children}</View>
+    <View style={ss.section}>
+      <Text style={ss.sectionTitle}>{title.toUpperCase()}</Text>
+      <View style={ss.sectionBox}>{children}</View>
     </View>
   );
 }
@@ -51,18 +53,68 @@ function NavRow({
   onPress: () => void;
 }) {
   return (
-    <Pressable style={[s.row, !last && s.rowDivider]} onPress={onPress}>
-      <View style={s.rowLabels}>
-        <Text style={s.rowLabel}>{label}</Text>
-        {hint ? <Text style={s.rowHint}>{hint}</Text> : null}
+    <Pressable style={[ss.row, !last && ss.rowDivider]} onPress={onPress}>
+      <View style={ss.rowLabels}>
+        <Text style={ss.rowLabel}>{label}</Text>
+        {hint ? <Text style={ss.rowHint}>{hint}</Text> : null}
       </View>
-      <View style={s.rowRight}>
+      <View style={ss.rowRight}>
         {active ? (
-          <View style={s.activeDot} />
+          <View style={ss.activeDot} />
         ) : null}
         <Ionicons name="chevron-forward" size={16} color={C.muted} />
       </View>
     </Pressable>
+  );
+}
+
+function EditableRowModal({
+  visible,
+  title,
+  value,
+  placeholder,
+  label,
+  onSave,
+  onClose,
+}: {
+  visible: boolean;
+  title: string;
+  value: string;
+  placeholder: string;
+  label: string;
+  onSave: (val: string) => void;
+  onClose: () => void;
+}) {
+  const [text, setText] = useState(value);
+  React.useEffect(() => { setText(value); }, [value, visible]);
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={ss.modalOverlay} onPress={onClose}>
+        <Pressable style={ss.modalSheet} onPress={(e) => e.stopPropagation()}>
+          <Text style={ss.modalTitle}>{title}</Text>
+          <Text style={ss.inputLabel}>{label}</Text>
+          <TextInput
+            style={ss.urlInput}
+            value={text}
+            onChangeText={setText}
+            placeholder={placeholder}
+            placeholderTextColor={C.faint}
+            autoFocus
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={() => { onSave(text.trim()); onClose(); }}
+          />
+          <Pressable
+            style={ss.saveBtn}
+            onPress={() => { onSave(text.trim()); onClose(); }}
+          >
+            <Text style={ss.saveBtnText}>Salvar</Text>
+          </Pressable>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
 
@@ -71,6 +123,7 @@ export default function SettingsScreen() {
   const { t } = useI18n();
   const router = useRouter();
   const [langModal, setLangModal] = useState(false);
+  const [editModal, setEditModal] = useState<{ key: string; title: string; label: string; placeholder: string } | null>(null);
 
   const currentLang = settings.language || '';
   const currentLangObj = LANGUAGES.find((l) => l.code === currentLang);
@@ -84,24 +137,71 @@ export default function SettingsScreen() {
     return settings.claudeModel || 'Non configurato';
   };
 
+  const openUrlEdit = (key: string, title: string, label: string, placeholder: string) => {
+    setEditModal({ key, title, label, placeholder });
+  };
+
+  const saveEditable = (val: string) => {
+    if (!editModal) return;
+    updateSettings({ [editModal.key]: val } as any);
+  };
+
+  const getValue = (key: string) => {
+    return (settings as any)[key] || '';
+  };
+
   return (
-    <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={ss.safe} edges={['top', 'left', 'right']}>
       <StatusBar style="light" />
 
-      <View style={s.header}>
+      <View style={ss.header}>
         <Ionicons name="settings" size={20} color={C.primary} />
-        <Text style={s.h1}>{t.settingsTitle}</Text>
+        <Text style={ss.h1}>{t.settingsTitle}</Text>
       </View>
 
       <ScrollView
-        contentContainerStyle={[s.scroll, s.scrollTablet]}
+        contentContainerStyle={[ss.scroll]}
         showsVerticalScrollIndicator={false}
       >
 
+        {/* ── Connections ── */}
+        <Section title="Conexões">
+          <Pressable
+            style={[ss.row, ss.rowDivider]}
+            onPress={() => openUrlEdit('monkeyCodeUrl', 'URL do MonkeyCode', 'URL', 'https://monkeycode.example.com')}
+          >
+            <View style={ss.rowLabels}>
+              <Text style={ss.rowLabel}>URL do MonkeyCode</Text>
+              <Text style={ss.rowHint}>{settings.monkeyCodeUrl || 'Não configurado'}</Text>
+            </View>
+            <Ionicons name="pencil-outline" size={16} color={C.muted} />
+          </Pressable>
+          <Pressable
+            style={[ss.row, ss.rowDivider]}
+            onPress={() => openUrlEdit('licenseApiUrl', 'URL da API de Licença', 'URL', 'https://license.example.com')}
+          >
+            <View style={ss.rowLabels}>
+              <Text style={ss.rowLabel}>URL da API de Licença</Text>
+              <Text style={ss.rowHint}>{settings.licenseApiUrl || 'Não configurado'}</Text>
+            </View>
+            <Ionicons name="pencil-outline" size={16} color={C.muted} />
+          </Pressable>
+          <Pressable
+            style={ss.row}
+            onPress={() => openUrlEdit('validationApiUrl', 'URL da API de Validação', 'URL', 'https://validate.example.com')}
+          >
+            <View style={ss.rowLabels}>
+              <Text style={ss.rowLabel}>URL da API de Validação</Text>
+              <Text style={ss.rowHint}>{settings.validationApiUrl || 'Não configurado'}</Text>
+            </View>
+            <Ionicons name="pencil-outline" size={16} color={C.muted} />
+          </Pressable>
+        </Section>
+
         {/* ── Language ── */}
         <Section title={t.sectionLanguage}>
-          <Pressable style={s.row} onPress={() => setLangModal(true)}>
-            <Text style={s.rowLabel}>{langLabel}</Text>
+          <Pressable style={ss.row} onPress={() => setLangModal(true)}>
+            <Text style={ss.rowLabel}>{langLabel}</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />
           </Pressable>
         </Section>
@@ -129,17 +229,48 @@ export default function SettingsScreen() {
           />
         </Section>
 
+        {/* ── AI Model ── */}
+        <Section title="Modelo de IA Local">
+          {AVAILABLE_MODELS.map((model, idx) => (
+            <View key={model} style={[ss.row, idx < AVAILABLE_MODELS.length - 1 && ss.rowDivider]}>
+              <View style={ss.rowLabels}>
+                <Text style={ss.rowLabel}>{model}</Text>
+                <Text style={ss.rowHint}>
+                  {settings.activeLocalModel === model ? 'Ativo' : 'Não baixado'}
+                </Text>
+              </View>
+              <Pressable
+                style={[ss.modelBtn, settings.activeLocalModel === model && ss.modelBtnActive]}
+                onPress={() => updateSettings({ activeLocalModel: model })}
+              >
+                <Text style={[ss.modelBtnText, settings.activeLocalModel === model && ss.modelBtnTextActive]}>
+                  {settings.activeLocalModel === model ? 'Usando' : 'Usar'}
+                </Text>
+              </Pressable>
+            </View>
+          ))}
+        </Section>
+
+        {/* ── RAG ── */}
+        <Section title="RAG">
+          <NavRow
+            label="Gerenciar RAG"
+            hint="Componentes, embeddings, reindexar"
+            onPress={() => router.push('/rag-manager')}
+          />
+        </Section>
+
         {/* ── Info ── */}
         <Section title={t.sectionInfo}>
-          <View style={s.row}>
-            <Text style={s.rowLabel}>{t.appVersionLabel}</Text>
-            <Text style={s.valueText}>1.0.0</Text>
+          <View style={ss.row}>
+            <Text style={ss.rowLabel}>{t.appVersionLabel}</Text>
+            <Text style={ss.valueText}>1.0.0</Text>
           </View>
         </Section>
 
-        <View style={s.notice}>
+        <View style={ss.notice}>
           <Ionicons name="shield-checkmark-outline" size={16} color={C.faint} />
-          <Text style={s.noticeText}>{t.securityNotice}</Text>
+          <Text style={ss.noticeText}>{t.securityNotice}</Text>
         </View>
 
         <View style={{ height: 24 }} />
@@ -152,37 +283,47 @@ export default function SettingsScreen() {
         animationType="fade"
         onRequestClose={() => setLangModal(false)}
       >
-        <Pressable style={s.modalOverlay} onPress={() => setLangModal(false)}>
-          <Pressable style={s.modalSheet} onPress={(e) => e.stopPropagation()}>
-            <Text style={s.modalTitle}>{t.sectionLanguage}</Text>
-
-            {/* Auto */}
+        <Pressable style={ss.modalOverlay} onPress={() => setLangModal(false)}>
+          <Pressable style={ss.modalSheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={ss.modalTitle}>{t.sectionLanguage}</Text>
             <Pressable
-              style={[s.langRow, currentLang === '' && s.langRowActive]}
+              style={[ss.langRow, currentLang === '' && ss.langRowActive]}
               onPress={() => { updateSettings({ language: '' }); setLangModal(false); }}
             >
-              <Text style={s.langRowText}>🌐  Auto</Text>
+              <Text style={ss.langRowText}>🌐  Auto</Text>
               {currentLang === '' && <Ionicons name="checkmark" size={18} color={C.primary} />}
             </Pressable>
-
             {LANGUAGES.map((lang) => (
               <Pressable
                 key={lang.code}
-                style={[s.langRow, currentLang === lang.code && s.langRowActive]}
+                style={[ss.langRow, currentLang === lang.code && ss.langRowActive]}
                 onPress={() => { updateSettings({ language: lang.code as Language }); setLangModal(false); }}
               >
-                <Text style={s.langRowText}>{lang.flag}  {lang.label}</Text>
+                <Text style={ss.langRowText}>{lang.flag}  {lang.label}</Text>
                 {currentLang === lang.code && <Ionicons name="checkmark" size={18} color={C.primary} />}
               </Pressable>
             ))}
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* ── URL edit modal ── */}
+      {editModal && (
+        <EditableRowModal
+          visible
+          title={editModal.title}
+          label={editModal.label}
+          value={getValue(editModal.key)}
+          placeholder={editModal.placeholder}
+          onSave={saveEditable}
+          onClose={() => setEditModal(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
-const s = StyleSheet.create({
+const ss = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
 
   header: {
@@ -197,8 +338,7 @@ const s = StyleSheet.create({
   },
   h1: { fontSize: 26, fontWeight: '800', color: C.text, letterSpacing: -0.5 },
 
-  scroll: { padding: 16, gap: 20, paddingBottom: 32 },
-  scrollTablet: { maxWidth: 560, width: '100%', alignSelf: 'center' },
+  scroll: { padding: 16, gap: 20, paddingBottom: 32, maxWidth: 560, width: '100%', alignSelf: 'center' },
 
   section: { gap: 7 },
   sectionTitle: {
@@ -240,6 +380,16 @@ const s = StyleSheet.create({
   },
   valueText: { color: C.muted, fontSize: 14 },
 
+  modelBtn: {
+    backgroundColor: C.border,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  modelBtnActive: { backgroundColor: C.primary },
+  modelBtnText: { color: C.muted, fontSize: 13, fontWeight: '600' },
+  modelBtnTextActive: { color: '#fff' },
+
   notice: {
     flexDirection: 'row',
     gap: 10,
@@ -276,6 +426,25 @@ const s = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: 8,
   },
+  inputLabel: { color: C.muted, fontSize: 12, marginBottom: 6 },
+  urlInput: {
+    backgroundColor: C.bg,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: C.text,
+    fontSize: 15,
+    marginBottom: 12,
+  },
+  saveBtn: {
+    backgroundColor: C.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   langRow: {
     flexDirection: 'row',
     alignItems: 'center',

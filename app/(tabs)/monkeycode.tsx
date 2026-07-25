@@ -28,7 +28,7 @@ export default function MonkeyCodeScreen() {
   const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const monkeyCodeUrl = (settings as any).monkeyCodeUrl || '';
+  const monkeyCodeUrl = settings.monkeyCodeUrl || '';
 
   const onMessage = (event: WebViewMessageEvent) => {
     try {
