@@ -52,7 +52,10 @@
       "package": "app.drukstech.mobile"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "offline": true
     },
     "plugins": [
       "expo-router",

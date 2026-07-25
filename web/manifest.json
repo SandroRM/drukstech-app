@@ -1,0 +1,16 @@
+{
+  "name": "drukstech",
+  "short_name": "drukstech",
+  "description": "AI-powered module generation for mobile apps",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
