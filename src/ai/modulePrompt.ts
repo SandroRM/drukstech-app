@@ -326,13 +326,21 @@ const LANGUAGE_DIRECTIVES: Record<string, string> = {
   de: 'WICHTIG: Generiere ALLE UI-Texte auf Deutsch: Button-Labels, Titel, Platzhalter, Statusmeldungen, emptyText.',
 };
 
-export function buildModuleGenerationPrompt(userPrompt: string, language?: string): string {
+export function buildModuleGenerationPrompt(
+  userPrompt: string,
+  language?: string,
+  ragContext?: string
+): string {
   const trimmed = userPrompt.trim();
   const lang = language?.toLowerCase().slice(0, 2) || 'it';
   const langDirective = LANGUAGE_DIRECTIVES[lang] ?? '';
+  const ragSection = ragContext
+    ? `\n=== COMPONENTI RAG CONSIGLIATI (componenti rilevanti recuperati dal database locale) ===\n${ragContext}\n`
+    : '';
 
   return `Sei il generatore di moduli per drukstech. Obiettivo: modulo completo, valido e pronto all'uso su dispositivo mobile.
 ${langDirective ? `\n${langDirective}\n` : ''}
+${ragSection}
 === FORMATO DI RISPOSTA (leggi tutto questo blocco prima della richiesta utente; l'output deve rispettarlo al 100%) ===
 
 ${JSON_RESPONSE_RULES_IT}

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { buildModuleGenerationPrompt, getJsonResponseRetryHint } from './modulePrompt';
 import { pickMockModule } from './mockModules';
+import { buildRagPrompt } from '../rag/retriever';
 import type { GeneratedModulePayload } from '../types/generatedModule';
 import { reportGenAppError } from '../debug/genAppDebug';
 
@@ -166,8 +167,9 @@ Fine risposta precedente:
 ${previousContent.slice(Math.max(0, previousContent.length - 300))}`;
 }
 
-async function generateWithOllama(
+async function generateWithOllamaPreBuilt(
   userPrompt: string,
+  preBuiltPrompt: string,
   baseUrl: string,
   model: string,
   options?: {
@@ -183,19 +185,13 @@ async function generateWithOllama(
   }
 
   const url = root.endsWith('/api') ? `${root}/chat` : `${root}/api/chat`;
-  const prompt = buildModuleGenerationPrompt(userPrompt, options?.language);
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options?.apiKey?.trim()) {
     headers.Authorization = `Bearer ${options.apiKey.trim()}`;
   }
   const makeBody = (content: string, temperature: number) => ({
     model: model.trim() || options?.defaultModel || 'gemma4e4',
-    messages: [
-      {
-        role: 'user' as const,
-        content,
-      },
-    ],
+    messages: [{ role: 'user' as const, content }],
     stream: false,
     format: 'json',
     options: {
@@ -212,7 +208,7 @@ async function generateWithOllama(
     for (let attempt = 0; attempt < 3; attempt++) {
       const retryPrompt =
         attempt === 0
-          ? prompt
+          ? preBuiltPrompt
           : buildRetryPrompt(userPrompt, lastGenerationError, lastContent);
 
       const res = await axios.post(url, makeBody(retryPrompt, attempt === 0 ? 0.2 : 0), {
@@ -237,31 +233,19 @@ async function generateWithOllama(
         lastContent = content;
         if (!content.trim()) {
           lastGenerationError = 'risposta vuota dal modello';
-          reportGenAppError(`aiClient.${providerLabel}.emptyContent`, lastGenerationError, {
-            attempt: attempt + 1,
-          });
           continue;
         }
         try {
           parsed = parseStrictJson(content);
         } catch (e) {
           lastGenerationError = `JSON non valido: ${(e as Error).message}`;
-          reportGenAppError(`aiClient.${providerLabel}.jsonParse`, e, {
-            attempt: attempt + 1,
-            contentHead: content.slice(0, 1200),
-            contentTail: content.slice(Math.max(0, content.length - 600)),
-          });
           continue;
         }
       } else if (content != null && typeof content === 'object') {
         parsed = content;
         lastContent = JSON.stringify(content).slice(0, 4000);
       } else {
-        const msg = `Ollama: risposta senza message.content.`;
-        reportGenAppError(`aiClient.${providerLabel}.noContent`, msg, {
-          dataKeys: res.data != null && typeof res.data === 'object' ? Object.keys(res.data as object) : [],
-        });
-        return { ok: false, error: msg };
+        return { ok: false, error: 'Ollama: risposta senza message.content.' };
       }
 
       const validated = validateGeneratedModule(parsed);
@@ -269,7 +253,6 @@ async function generateWithOllama(
         lastGenerationError = `validazione schema: ${validated.error}`;
         continue;
       }
-
 
       return { ok: true, data: validated.module };
     }
@@ -285,8 +268,9 @@ async function generateWithOllama(
   }
 }
 
-async function generateWithOpenAICompatible(
+async function generateWithOpenAICompatiblePreBuilt(
   userPrompt: string,
+  preBuiltPrompt: string,
   apiUrl: string,
   apiKey?: string,
   apiModel = 'gpt-4o-mini',
@@ -295,8 +279,6 @@ async function generateWithOpenAICompatible(
   providerLabel: 'openai' | 'openai-compatible' = 'openai',
   language?: string
 ): Promise<{ ok: true; data: GeneratedModulePayload } | { ok: false; error: string }> {
-  const prompt = buildModuleGenerationPrompt(userPrompt, language);
-
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -309,15 +291,10 @@ async function generateWithOpenAICompatible(
 
   for (let attempt = 0; attempt < 3; attempt++) {
     const contentPrompt =
-      attempt === 0 ? prompt : buildRetryPrompt(userPrompt, lastGenerationError, lastContent);
+      attempt === 0 ? preBuiltPrompt : buildRetryPrompt(userPrompt, lastGenerationError, lastContent);
     const body = {
       model: apiModel,
-      messages: [
-        {
-          role: 'user',
-          content: contentPrompt,
-        },
-      ],
+      messages: [{ role: 'user', content: contentPrompt }],
       temperature: attempt === 0 ? 0.2 : 0,
       ...(apiMaxTokens != null ? { max_tokens: apiMaxTokens } : {}),
       ...(apiExtraBody ?? {}),
@@ -344,26 +321,15 @@ async function generateWithOpenAICompatible(
           body: JSON.stringify(body),
         });
       } catch (fetchError) {
-        reportGenAppError(`aiClient.${providerLabel}.fetchNetwork`, fetchError, {
-          apiUrl: apiUrl.slice(0, 120),
-          axiosCode: err.code,
-          axiosMessage: err.message,
-        });
         throw fetchError;
       }
       const text = await fetchRes.text();
       let data: unknown = text;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        // keep raw text
-      }
+      try { data = JSON.parse(text); } catch { /* keep raw */ }
       res = { status: fetchRes.status, data };
     }
 
     if (res.status < 200 || res.status >= 300) {
-      const detail = JSON.stringify(res.data).slice(0, 400);
-      reportGenAppError(`aiClient.${providerLabel}.http`, `HTTP ${res.status}`, { status: res.status, provider: providerLabel, detail });
       const msg = res.status === 401 || res.status === 403
         ? 'API key non valida o scaduta.'
         : res.status === 429
@@ -385,19 +351,12 @@ async function generateWithOpenAICompatible(
       data.output_text;
 
     if (typeof content !== 'string') {
-      const msg = 'Formato risposta AI non riconosciuto.';
-      reportGenAppError(`aiClient.${providerLabel}.badShape`, new Error(msg), {
-        dataPreview: JSON.stringify(res.data).slice(0, 600),
-      });
-      return { ok: false, error: msg };
+      return { ok: false, error: 'Formato risposta AI non riconosciuto.' };
     }
 
     lastContent = content;
     if (!content.trim()) {
       lastGenerationError = 'risposta vuota dal modello';
-      reportGenAppError(`aiClient.${providerLabel}.emptyContent`, new Error(lastGenerationError), {
-        attempt: attempt + 1,
-      });
       continue;
     }
 
@@ -406,11 +365,6 @@ async function generateWithOpenAICompatible(
       parsed = parseStrictJson(content);
     } catch (e) {
       lastGenerationError = `JSON non valido: ${(e as Error).message}`;
-      reportGenAppError(`aiClient.${providerLabel}.jsonParse`, e, {
-        attempt: attempt + 1,
-        contentHead: content.slice(0, 1200),
-        contentTail: content.slice(Math.max(0, content.length - 600)),
-      });
       continue;
     }
 
@@ -420,15 +374,15 @@ async function generateWithOpenAICompatible(
       continue;
     }
 
-
     return { ok: true, data: validated.module };
   }
 
   return { ok: false, error: 'Il provider AI non ha generato un modulo valido, riprova o semplifica la richiesta.' };
 }
 
-async function generateWithClaude(
+async function generateWithClaudePreBuilt(
   userPrompt: string,
+  preBuiltPrompt: string,
   baseUrl: string,
   apiKey: string | undefined,
   model = 'claude-sonnet-4-20250514',
@@ -443,7 +397,6 @@ async function generateWithClaude(
   }
 
   const url = root.endsWith('/v1') ? joinUrl(root, 'messages') : joinUrl(root, 'v1/messages');
-  const prompt = buildModuleGenerationPrompt(userPrompt, language);
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-api-key': key || 'ollama',
@@ -456,30 +409,19 @@ async function generateWithClaude(
   try {
     for (let attempt = 0; attempt < 3; attempt++) {
       const contentPrompt =
-        attempt === 0 ? prompt : buildRetryPrompt(userPrompt, lastGenerationError, lastContent);
+        attempt === 0 ? preBuiltPrompt : buildRetryPrompt(userPrompt, lastGenerationError, lastContent);
       const res = await axios.post(
         url,
         {
           model: model.trim() || 'claude-sonnet-4-20250514',
           max_tokens: 8192,
           temperature: attempt === 0 ? 0.2 : 0,
-          messages: [
-            {
-              role: 'user',
-              content: contentPrompt,
-            },
-          ],
+          messages: [{ role: 'user', content: contentPrompt }],
         },
-        {
-          headers,
-          timeout: 180_000,
-          validateStatus: () => true,
-        }
+        { headers, timeout: 180_000, validateStatus: () => true }
       );
 
       if (res.status < 200 || res.status >= 300) {
-        const detail = JSON.stringify(res.data).slice(0, 500);
-        reportGenAppError(`aiClient.${providerLabel}.http`, `Claude HTTP ${res.status}`, { status: res.status, detail });
         const msg = res.status === 401 || res.status === 403
           ? 'API key Claude non valida o scaduta.'
           : res.status === 429
@@ -498,9 +440,6 @@ async function generateWithClaude(
       lastContent = content;
       if (!content) {
         lastGenerationError = 'risposta vuota dal modello Claude';
-        reportGenAppError(`aiClient.${providerLabel}.emptyContent`, lastGenerationError, {
-          attempt: attempt + 1,
-        });
         continue;
       }
 
@@ -509,11 +448,6 @@ async function generateWithClaude(
         parsed = parseStrictJson(content);
       } catch (e) {
         lastGenerationError = `JSON non valido: ${(e as Error).message}`;
-        reportGenAppError(`aiClient.${providerLabel}.jsonParse`, e, {
-          attempt: attempt + 1,
-          contentHead: content.slice(0, 1200),
-          contentTail: content.slice(Math.max(0, content.length - 600)),
-        });
         continue;
       }
 
@@ -523,14 +457,12 @@ async function generateWithClaude(
         continue;
       }
 
-
       return { ok: true, data: validated.module };
     }
 
     return { ok: false, error: 'Claude non ha generato un modulo valido, riprova o semplifica la richiesta.' };
   } catch (e) {
     const err = e as Error & { code?: string };
-    reportGenAppError(`aiClient.${providerLabel}.catch`, e, { apiUrl: url.slice(0, 120), code: err.code, model });
     if (err.message?.includes('Network Error') || err.code === 'ECONNREFUSED') {
       return { ok: false, error: 'Impossibile connettersi a Claude API, controlla connessione e URL.' };
     }
@@ -548,19 +480,28 @@ export async function generateModule(
       return { ok: true, data: mock };
     }
     const msg =
-      'Modalità mock: nessun modulo predefinito per questa richiesta. Prova “calcolatrice”, “audio” o “qr”.';
+      'Modalità mock: nessun modulo predefinito per questa richiesta. Prova "calcolatrice", "audio" o "qr".';
     reportGenAppError('aiClient.mock.noMatch', new Error(msg), { promptPreview: userPrompt.slice(0, 200) });
     return { ok: false, error: msg };
   }
 
+  let ragPrompt: string | undefined;
+  try {
+    ragPrompt = await buildRagPrompt(userPrompt);
+  } catch {
+    // RAG non disponibile, procedo senza
+  }
+  const prompt = buildModuleGenerationPrompt(userPrompt, opts.language, ragPrompt);
+
   const ollamaUrl = opts.ollamaBaseUrl?.trim();
   if (ollamaUrl) {
-    return generateWithOllama(userPrompt, ollamaUrl, opts.ollamaModel?.trim() || 'gemma4e4', { language: opts.language });
+    return generateWithOllamaPreBuilt(userPrompt, prompt, ollamaUrl, opts.ollamaModel?.trim() || 'gemma4e4', { language: opts.language });
   }
 
   if (opts.apiProvider === 'claude') {
-    return generateWithClaude(
+    return generateWithClaudePreBuilt(
       userPrompt,
+      prompt,
       opts.claudeBaseUrl?.trim() || 'https://api.anthropic.com/v1',
       opts.claudeApiKey,
       opts.claudeModel || 'claude-sonnet-4-20250514',
@@ -571,8 +512,9 @@ export async function generateModule(
 
   if (opts.apiUrl?.trim()) {
     try {
-      return await generateWithOpenAICompatible(
+      return await generateWithOpenAICompatiblePreBuilt(
         userPrompt,
+        prompt,
         opts.apiUrl.trim(),
         opts.apiKey,
         opts.apiModel,
