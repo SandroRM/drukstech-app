@@ -53,6 +53,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="monkeycode"
+        options={{
+          title: t.tabMonkeyCode,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="code-slash-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="preview"
+        options={{
+          title: t.tabPreview,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="eye-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: t.tabSettings,

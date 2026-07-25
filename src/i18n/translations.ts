@@ -12,6 +12,8 @@ export type Strings = {
   // Tabs
   tabGenerate: string;
   tabModules: string;
+  tabMonkeyCode: string;
+  tabPreview: string;
   tabSettings: string;
 
   // Generate screen
@@ -118,6 +120,8 @@ export type Strings = {
 const it: Strings = {
   tabGenerate: 'Genera',
   tabModules: 'Moduli',
+  tabMonkeyCode: 'MonkeyCode',
+  tabPreview: 'Preview',
   tabSettings: 'Impostazioni',
 
   heroLine1: 'Crea il tuo',
@@ -244,6 +248,8 @@ const it: Strings = {
 const en: Strings = {
   tabGenerate: 'Generate',
   tabModules: 'Modules',
+  tabMonkeyCode: 'MonkeyCode',
+  tabPreview: 'Preview',
   tabSettings: 'Settings',
 
   heroLine1: 'Create your',
@@ -370,6 +376,8 @@ const en: Strings = {
 const es: Strings = {
   tabGenerate: 'Generar',
   tabModules: 'Módulos',
+  tabMonkeyCode: 'MonkeyCode',
+  tabPreview: 'Preview',
   tabSettings: 'Ajustes',
 
   heroLine1: 'Crea tu',
@@ -496,6 +504,8 @@ const es: Strings = {
 const fr: Strings = {
   tabGenerate: 'Générer',
   tabModules: 'Modules',
+  tabMonkeyCode: 'MonkeyCode',
+  tabPreview: 'Preview',
   tabSettings: 'Réglages',
 
   heroLine1: 'Crée ton',
@@ -622,6 +632,8 @@ const fr: Strings = {
 const de: Strings = {
   tabGenerate: 'Erstellen',
   tabModules: 'Module',
+  tabMonkeyCode: 'MonkeyCode',
+  tabPreview: 'Preview',
   tabSettings: 'Einstellungen',
 
   heroLine1: 'Erstelle dein',
