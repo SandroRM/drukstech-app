@@ -26,8 +26,8 @@ import { Icons, Spinner } from '@/components/Icons';
 import { radius, spacing, statusInfo, toneColors, useTheme, type Theme } from '@/theme';
 
 // MonkeyCode 猴子 logo（随主题：浅色主题用深色猴子，深色主题用亮色猴子）
-const MONKEY_LIGHT = require('../../assets/logo-light.png'); // 深色猴子(透明底) → 浅色背景
-const MONKEY_DARK = require('../../assets/logo-dark.png');   // 亮色猴子(深色圆底) → 深色背景
+const MONKEY_LIGHT = require('../../../assets/logo-light.png'); // 深色猴子(透明底) → 浅色背景
+const MONKEY_DARK = require('../../../assets/logo-dark.png');   // 亮色猴子(深色圆底) → 深色背景
 export function MonkeyLogo({ size = 40, style }: { size?: number; style?: StyleProp<ImageStyle> }) {
   const t = useTheme();
   return <Image source={t.dark ? MONKEY_DARK : MONKEY_LIGHT} style={[{ width: size, height: size }, style]} resizeMode="contain" />;

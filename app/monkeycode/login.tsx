@@ -12,7 +12,7 @@ import { Icons } from '@/components/Icons';
 import { authorizeDouyin } from '@/native/douyinAuth';
 import { useTheme } from '@/theme';
 
-const LOGO_LIGHT = require('../assets/logo-light.png');
+const LOGO_LIGHT = require('../../assets/logo-light.png');
 const norm = (u: string) => u.trim().replace(/\/+$/, '');
 const phoneValid = (v: string) => /^1[3-9]\d{9}$/.test(v.trim());
 const GITHUB_CALLBACK_URL = 'monkeycode://oauth/github';

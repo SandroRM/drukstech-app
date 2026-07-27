@@ -2,6 +2,13 @@ const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
+config.resolver.assetExts = [...(config.resolver.assetExts || []), 'mermaidjs'];
+
+config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
+  punycode: require.resolve('punycode/'),
+};
+
 config.server = {
   ...config.server,
   enhanceMiddleware: (middleware, server) => {

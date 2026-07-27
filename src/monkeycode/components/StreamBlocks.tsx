@@ -19,7 +19,7 @@ export type { AnswerMap } from '@/messages/askAnswers';
 export type AnswerSubmitResult = 'sent' | 'queued' | 'rejected';
 export type AnswerSubmitState = Exclude<AnswerSubmitResult, 'rejected'>;
 
-const MERMAID_RUNTIME_ASSET = require('../../assets/mermaid.min.mermaidjs');
+const MERMAID_RUNTIME_ASSET = require('../../../assets/mermaid.min.mermaidjs');
 let mermaidRuntimePromise: Promise<string> | null = null;
 
 function loadMermaidRuntime(): Promise<string> {
