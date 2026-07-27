@@ -1,11 +1,18 @@
 import { Stack } from 'expo-router';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { CameraCaptureModalHost } from '../src/renderer/CameraCaptureModal';
 import { QrScanModalHost } from '../src/renderer/QrScanModal';
 import { TorchHost } from '../src/renderer/TorchHost';
 import { SettingsProvider } from '../src/settings/SettingsContext';
+import { LicenseGate } from '../src/license/LicenseGate';
 
 export default function RootLayout() {
+  const [licensed, setLicensed] = useState(false);
+
+  if (!licensed) {
+    return <LicenseGate onLicensed={() => setLicensed(true)} />;
+  }
+
   return (
     <SettingsProvider>
       <Fragment>
