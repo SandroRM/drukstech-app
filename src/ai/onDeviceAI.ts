@@ -26,7 +26,9 @@ async function ensureModelLoaded(): Promise<void> {
     const instance = await getLLM();
     if (!instance) throw new Error('Falha ao criar engine LiteRT-LM.');
     let url: string;
-    if (modelName.includes('4B')) {
+    if (settings.localModelUrl) {
+      url = settings.localModelUrl;
+    } else if (modelName.includes('4B')) {
       url = 'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it.litertlm';
     } else {
       url = 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';

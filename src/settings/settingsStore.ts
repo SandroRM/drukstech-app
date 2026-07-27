@@ -17,6 +17,7 @@ export type AppSettings = {
   licenseApiUrl: string;
   validationApiUrl: string;
   activeLocalModel: string;
+  localModelUrl: string;
   /** '' = auto-detect from system locale */
   language: string;
 };
@@ -36,6 +37,7 @@ export function defaultSettings(): AppSettings {
     licenseApiUrl: '',
     validationApiUrl: '',
     activeLocalModel: '',
+    localModelUrl: '',
     language: '',
   };
 }

@@ -249,6 +249,17 @@ export default function SettingsScreen() {
               </Pressable>
             </View>
           ))}
+          <View style={ss.row}>
+            <View style={ss.rowLabels}>
+              <Text style={ss.rowLabel}>URL do modelo</Text>
+              <Text style={ss.rowHint}>{settings.localModelUrl || 'URL automática (HuggingFace)'}</Text>
+            </View>
+            <Pressable
+              onPress={() => openUrlEdit('localModelUrl', 'URL do Modelo Local', 'URL', 'https://huggingface.co/.../model.litertlm')}
+            >
+              <Ionicons name="pencil-outline" size={16} color={C.muted} />
+            </Pressable>
+          </View>
         </Section>
 
         {/* ── RAG ── */}
