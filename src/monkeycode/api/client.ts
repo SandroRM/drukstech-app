@@ -31,8 +31,24 @@ import type {
   Wallet,
 } from './types';
 import { base64Encode } from '@/messages/base64';
+import { loadSettings } from '../../settings/settingsStore';
 
-export const DEFAULT_BASE_URL = 'https://monkeycode-ai.com';
+const DEFAULT_BASE_URL_STATIC = 'https://monkeycode-ai.com';
+let DEFAULT_BASE_URL = DEFAULT_BASE_URL_STATIC;
+
+export { DEFAULT_BASE_URL_STATIC as defaultBaseUrl, DEFAULT_BASE_URL };
+
+async function initBaseUrl(): Promise<void> {
+  try {
+    const settings = await loadSettings();
+    if (settings.monkeyCodeUrl) {
+      DEFAULT_BASE_URL = settings.monkeyCodeUrl;
+    }
+  } catch {
+    // keep default
+  }
+}
+initBaseUrl();
 
 let baseUrl = DEFAULT_BASE_URL;
 let basicAuth = ''; // 形如 "user:pass"，用于连接带 HTTP Basic Auth 的测试环境（反向代理层鉴权）
